@@ -1,1 +1,51 @@
-// Pure data object
+
+new stdout(`rho:io:stdout`) in {
+
+
+new CreateProperty in {
+    for (start, end, claims, return <= CreateProperty) {
+        match (*start, *end, *claims) {
+            // BUG: Doesn't match that the type of the values is a string, or list.
+            (String, String, List) => {
+                new this, pstart, pend, pclaims in {
+                    pstart!(*start) |
+                    pend!(*end) |
+                    pclaims!(*claims) |
+                    return!(bundle+{*this}) |
+                    
+                    // Get Info Method
+                    for (@"getInfo", getInfo <= this) {
+                        getInfo!(*pstart, *pend, *pclaims)
+                    } | 
+                    
+                    stdout!("Created property")
+                }
+            }
+            
+            _ => stdout!("Unable to create property")
+        }
+        
+    }
+    |
+    
+    new p1New in {
+        CreateProperty!("2018-10-18", "2018-10-19", [ "Fixed a bug" ], *p1New) |
+        
+        for (p1 <- p1New) {
+            stdout!("Got p1") |
+            
+            new get in {
+                p1!("getInfo", *get) |
+                for (info <- get) {
+                    
+                    // BUG: Doesn't receive info
+                    stdout!("Got info") |
+                    stdout!(*info)
+                }
+            }
+        }
+    }
+    
+}
+
+}
