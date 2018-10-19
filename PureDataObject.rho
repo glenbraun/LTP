@@ -1,3 +1,7 @@
+// Pure data object
+// Idea here is to explore how to model a pure data object
+// This object would be a LaborProperty with the members of Start, End, and Claims. 
+// Start and End are dates, Claims is a list of strings.
 
 new stdout(`rho:io:stdout`) in {
 
