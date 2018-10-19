@@ -1,0 +1,20 @@
+{
+  "ethereum":  {
+      "clients": [
+          {
+              "name": "hello-ethereum",
+              "uri": "ws://localhost:8545",
+              "unlocked": true
+          }
+      ]
+  },
+  "rchain": {
+      "clients": [
+          {
+              "name": "Standalone RChain",
+              "internalUri": "rnode://localhost:40408",
+              "externalUri": "rnode://localhost:40401"
+          }
+      ]
+  }
+}
