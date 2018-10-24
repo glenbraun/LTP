@@ -5,7 +5,7 @@ The project is funded by the RChain bountry program. See: https://github.com/rch
 
 ## Data Model and Capabilities
 
-![Lifecycle of a Property Right](/glenbraun/LTP/Lifecycle.png)
+![Lifecycle of a Property Right](https://github.com/glenbraun/LTP/blob/master/Lifecycle.png)
 
 From: David Ellerman, [On Property Theory](http://www.ellerman.org/wp-content/uploads/2014/11/OnPropertyTheory-Reprint-singles.pdf), Copyright: David Ellerman, 2018
 
