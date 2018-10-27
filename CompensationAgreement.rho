@@ -1,0 +1,55 @@
+// Compensation-Agreement
+
+new stdout(`rho:io:stdout`),
+    insertArbitrary(`rho:registry:insertArbitrary`),
+    lookup(`rho:registry:lookup`),
+    CreateCompensationAgreement,
+    retContractUri in {
+        
+    // Register the CreateCompensationAgreement contract in the registry
+    insertArbitrary!(bundle+{*CreateCompensationAgreement}, *retContractUri) |
+    for (contractUri <- retContractUri) {
+        stdout!(*contractUri) |
+
+        contract CreateCompensationAgreement(
+                activityRecords,    // List of Activity-Record URIs 
+                amount,             // integer
+                rate,               // integer
+                max,                // integer
+                effectiveDate,      // String in yyyy-mm-dd format
+                contributorUri,     // contributor-channel URI
+                producerUri,        // producer-channel URI
+                outUri              // return channel for Compensation-Agreement URI
+                ) = {
+                    
+            // Register the Compensation-Agreement in the registry
+            new retUri, contributorRet, producerRet in {
+                
+                // Lookup contributor
+                lookup!(*contributorUri, *contributorRet) |
+                
+                // Lookup producer
+                lookup!(*producerUri, *producerRet) |
+                
+                for (contributor <- contributorRet; 
+                     producer <- producerRet) {
+    
+                    // TODO: Return error if lookups return Nil
+                    insertArbitrary!(
+                        {
+                            "ActivityRecords": *activityRecords,
+                            "Terms": (*amount, *rate, *max),
+                            "Effective Date": *effectiveDate,
+                            "Contributor": *contributor,
+                            "Producer": *producer,
+                        },
+                        *retUri) |
+            
+                    for (uri <- retUri) {
+                        outUri!(*uri)
+                    }
+                }    
+            }
+        }
+    }   
+}

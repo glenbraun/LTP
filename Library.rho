@@ -1,0 +1,28 @@
+// Library of registered names
+// This is a total hack, but, well, that's what it is
+// One must know the URI for the libary, but once that is known, the rest can be returned here
+// Dev, Library => `rho:id:foz96zaiwppz15w1sz3336jw4jwzrqakkbhats73tzba9sa3ewuhwb`
+
+new stdout(`rho:io:stdout`),
+    insertArbitrary(`rho:registry:insertArbitrary`),
+    lookup(`rho:registry:lookup`),
+    Library,
+    retContractUri in {
+    
+    // Register the library contract in the registry
+    insertArbitrary!(bundle+{*Library}, *retContractUri) |
+    for (contractUri <- retContractUri) {
+        stdout!(*contractUri) |
+
+        contract Library(environment, entry, outResult) = {
+            stdout!("In Library contract") |
+            
+            match (*environment, *entry) {
+                ("dev", "CreateActivityRecord") =>        lookup!(`rho:id:4uaq7qrr9o5ygxhzgzrmx6bxwqgreh4up1uptde5m7bew5j14jy48g`, *outResult)
+                ("dev", "CreateCompensationAgreement") => lookup!(`rho:id:r6g1urb7wf5z9pubwweakkrxmkt8rxu3ruiiwtqrdsgcu98cqg8aam`, *outResult)
+                ("dev", "CreateTable") =>                 lookup!(`rho:id:zxwzfe5rkoq8yrm8ab8ujbftqrkn5mmoz8j8nox4ozup4msa5qcy8h`, *outResult)
+                _ => outResult!(Nil)
+            }
+        }
+    }
+}

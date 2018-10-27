@@ -1,0 +1,39 @@
+// Activity-Record
+
+new stdout(`rho:io:stdout`),
+    insertArbitrary(`rho:registry:insertArbitrary`),
+    CreateActivityRecord,
+    retContractUri in {
+        
+    // Register the CreateActivityRecord contract in the registry
+    insertArbitrary!(bundle+{*CreateActivityRecord}, *retContractUri) |
+    for (contractUri <- retContractUri) {
+        stdout!(*contractUri) |
+
+        contract CreateActivityRecord(claims, timeMin, timeMax, outUri) = {
+            // type information
+            //     claims - a list of strings
+            //     timeMin - a date in string format yyyy-mm-dd
+            //     timeMax - a date in string format yyyy-mm-dd
+            //     outRegistryUri - a return channel
+            
+            // Register the activity in the registry
+            new retUri in {
+                insertArbitrary!(
+                    {
+                        "Claims": *claims,
+                        "Relevant timespan":
+                            {
+                                "Lower bound": *timeMin,
+                                "Upper bound": *timeMax
+                            }
+                    },
+                    *retUri) |
+                    
+                for (uri <- retUri) {
+                    outUri!(*uri)
+                }
+            }
+        }
+    }
+}

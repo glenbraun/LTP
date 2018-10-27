@@ -1,0 +1,68 @@
+// Tests for LTP
+
+new stdout(`rho:io:stdout`),
+    lookup(`rho:registry:lookup`),
+    insertArbitrary(`rho:registry:insertArbitrary`),
+    r1, r2 in {
+    
+    // URI for Library
+    lookup!(`rho:id:foz96zaiwppz15w1sz3336jw4jwzrqakkbhats73tzba9sa3ewuhwb`, *r1) |
+    
+    for (library <- r1) {
+        
+        stdout!("Have Library contract") |
+        
+        library!("dev", "CreateActivityRecord", *r1) |
+        library!("dev", "CreateCompensationAgreement", *r2) |
+        
+        for (createActivityRecord <- r1;
+             createCompensationAgreement <- r2) {
+                 
+            if (*createActivityRecord != Nil and 
+                *createCompensationAgreement != Nil) {
+
+                stdout!("Contracts from registry are NOT Nil") |
+
+                new arUri, compAgUri in {
+                    // (claims, timeMin, timeMax, outUri)
+                    createActivityRecord!(
+                        ["Army training, sir!"],
+                        "2018-01-01",
+                        "2018-01-31",
+                        *arUri) |
+                        
+                    for (valUri <- arUri) {
+                        stdout!("Created activity record: ${ar}." %% {"ar": *valUri} ) |
+    
+                        /*
+                        activityRecords,    // List of Activity-Record URIs 
+                        amount,             // integer
+                        rate,               // integer
+                        max,                // integer
+                        effectiveDate,      // String in yyyy-mm-dd format
+                        contributorUri,     // contributor-channel URI
+                        producerUri,        // producer-channel URI
+                        outUri              // return channel for Compensation-Agreement URI
+                        */
+    
+                        createCompensationAgreement!(
+                            [*arUri],
+                            500,
+                            70,
+                            10000,
+                            "2018-10-26",
+                            `contributorUri`,
+                            `producerUri`,
+                            *compAgUri) |
+                            
+                        for (compAg <- compAgUri) {
+                            stdout!("Created Compensation Agreement: ${compAg}." %% {"compAg": *compAg} )
+                        }                        
+                    }
+                }
+            } else {
+                stdout!("Contracts from registry are Nil")
+            }
+        }
+    }
+}

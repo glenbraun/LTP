@@ -1,0 +1,31 @@
+// Tests for LTP
+
+new stdout(`rho:io:stdout`),
+    lookup(`rho:registry:lookup`),
+    insertArbitrary(`rho:registry:insertArbitrary`),
+    r1, r2 in {
+    
+    // URI for Library
+    lookup!(`rho:id:foz96zaiwppz15w1sz3336jw4jwzrqakkbhats73tzba9sa3ewuhwb`, *r1) |
+    
+    for (library <- r1) {
+        
+        stdout!("Have Library contract") |
+        
+        library!("dev", "CreateTables", *r1) |
+
+        for (createTable <- r1) {
+                 
+            if (*createTable != Nil) {
+
+                stdout!("Contract from registry is NOT Nil")
+                
+                // Note: Tests are in with the CreateTable contract now
+                // Maybe this is a good practice anyway, don't 
+
+            } else {
+                stdout!("Contracts from registry are Nil")
+            }
+        }
+    }
+}
