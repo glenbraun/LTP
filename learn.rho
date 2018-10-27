@@ -1,7 +1,13 @@
 
+new stdout(`rho:io:stdout`) in {
+    
+    stdout!("hi")
+
 //@"z"!({"id1": {"name": "Glen"}, "id2": {"name": "Bob"} })
 
   
 //for (m <- @"z") {
 //    @"z"!(*m.union({"id3": {"name": "Alice"}}))
 //}
+
+}
