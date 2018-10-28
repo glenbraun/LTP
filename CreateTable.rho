@@ -1,5 +1,5 @@
 // CreateTable
-// A general database table with get, set, dete, scan, etc.
+// A general database table with get, set, delete, scan, etc.
 
 new stdout(`rho:io:stdout`),
     insertArbitrary(`rho:registry:insertArbitrary`),
