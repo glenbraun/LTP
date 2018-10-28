@@ -12,7 +12,113 @@ new stdout(`rho:io:stdout`),
         stdout!(*contractUri) |
 
         contract CreateTable(outTable) = {
-            new table, get, add, set, delete, find, pull, store, varRecordCount, varAdding in {
+            new table, get, add, set, delete, find, pull, store, 
+                varRecordCount, varAdding,
+                license, varBalance in {
+
+                // Initialize balance
+                varBalance!(0) |
+                
+                contract license(@fee, capability, @arity, outLicense) = {
+                    new wrapper in {
+                        match arity {
+                            2 => 
+                                {
+                                    // Wrap the capability in a simple fee process
+                                    contract wrapper(a, ret) = {
+                                        for (@balance <- varBalance) {
+                                            if (balance >= fee) {
+                                                
+                                                // Update balance with fee deducted
+                                                stdout!("Arity 2, deduct ${fee}, new balance ${balance}" %% {"fee": fee, "balance": balance-fee}) |
+                                                varBalance!(balance-fee) |
+                                                
+                                                // Allow the capability to be executed
+                                                capability!(*a, *ret)
+                                            } else {
+                                                ret!(-1000) // -1000 means insuffecient funds. TODO - status results should be names
+                                            }
+                                        }
+                                    } |
+                                    
+                                    // Return the wrapper
+                                    outLicense!(bundle+{*wrapper})
+                                }
+                            
+                            3 => 
+                                {
+                                    // Wrap the capability in a simple fee process
+                                    contract wrapper(a, b, ret) = {
+                                        for (@balance <- varBalance) {
+                                            if (balance >= fee) {
+                                                // Update balance with fee deducted
+                                                varBalance!(balance-fee) |
+                                                
+                                                // Allow the capability to be executed
+                                                capability!(*a, *b, *ret)
+                                            } else {
+                                                ret!(-1000) // -1000 means insuffecient funds. TODO - status results should be names
+                                            }
+                                        }
+                                    } |
+                                    
+                                    // Return the wrapper
+                                    outLicense!(bundle+{*wrapper})
+                                }
+                                
+                            _ => stdout!("ERROR: Unsupporited arity value in license contract")
+                        }
+                    }
+                } |
+                
+                contract table(@funds) = {
+                    if (funds > 0) {
+                        for (@balance <- varBalance) {
+                            varBalance!(balance+funds)
+                        }
+                    }
+                } |
+                
+                contract table(
+                    @funds,     // A balance for paying for use of the table
+                    outGet,     // A return channel for the get method
+                    outAdd,     // A return channel for the add method
+                    outSet,     // A return channel for the set method
+                    outDelete,  // A return channel for the delete method
+                    outFind     // A return channel for the scan method
+                    ) = {
+    
+                    // Add the funds to the balance
+                    table!(funds) |
+    
+                    // Send back the names to the methods
+                    new retGet, retAdd, retSet, retDelete, retFind in {
+                        license!(1, *get, 2, *retGet) |
+                        for (getLicense <- retGet) {
+                            outGet!(*getLicense)
+                        } |
+                        
+                        license!(5, *add, 2, *retAdd) |
+                        for (addLicense <- retAdd) {
+                            outAdd!(*addLicense)
+                        } |
+                        
+                        license!(2, *set, 3, *retSet) |
+                        for (setLicense <- retSet) {
+                            outSet!(*setLicense)
+                        } |
+
+                        license!(2, *delete, 2, *retDelete) |
+                        for (deleteLicense <- retDelete) {
+                            outDelete!(*deleteLicense)
+                        } |
+
+                        license!(2, *find, 2, *retFind) |
+                        for (findLicense <- retFind) {
+                            outFind!(*findLicense)
+                        }
+                    }
+                } |
                 
                 // Return the name to the table, send only
                 outTable!(bundle+{*table}) |
@@ -53,22 +159,6 @@ new stdout(`rho:io:stdout`),
                             outResult!(-1, Nil, Nil)  // -1 means record out of range
                         }
                     }
-                } |
-                
-                contract table(
-                    outGet,     // A return channel for the get method
-                    outAdd,     // A return channel for the add method
-                    outSet,     // A return channel for the set method
-                    outDelete,  // A return channel for the delete method
-                    outFind     // A return channel for the scan method
-                    ) = {
-    
-                    // Send back the names to the methods
-                    outGet!(bundle+{*get}) |
-                    outAdd!(bundle+{*add}) |
-                    outSet!(bundle+{*set}) |
-                    outDelete!(bundle+{*delete}) |
-                    outFind!(bundle+{*find})
                 } |
                 
                 contract get(@row, outResult) = {
@@ -220,7 +310,7 @@ new stdout(`rho:io:stdout`),
             for (testTable <- retTable) {
                 
                 // Get the table methods
-                testTable!(*retGet, *retAdd, *retSet, *retDelete, *retFind) |
+                testTable!(1000, *retGet, *retAdd, *retSet, *retDelete, *retFind) |
                 for (get <- retGet;
                      add <- retAdd;
                      set <- retSet;
