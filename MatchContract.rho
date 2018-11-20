@@ -1,0 +1,40 @@
+// Match a contract
+
+new stdout(`rho:io:stdout`) in {
+    new mc in {
+        contract mc(p) = {
+            match *p {
+                "hi" => { stdout!("hi match") }
+                {contract cc(pp) = {body}} => { stdout!("contract match") | body }
+                {contract cc(pp, ppp) = {body}} => { stdout!("contract match 2") | body }
+                x => { stdout!("x match") }
+                _ => { stdout!("no match") }
+            }
+        } |
+        
+        mc!("hi") |  // produces "hi match"
+        
+        new c, d in {
+            
+            contract c(p1) = {
+                stdout!(*p1)
+            } |
+            
+            mc!(*c) |  // produces x match
+            
+            mc!(
+                {
+                    contract d(dd, ddd) = { stdout!("hello from d2") }
+                }
+            )  // produces contract match 2
+            
+            |
+            
+            mc!(
+                {
+                    contract d(dd) = { stdout!("hello from d1") }
+                }
+            )  // produces contract match
+        }
+    }
+}
